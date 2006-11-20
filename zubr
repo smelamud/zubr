@@ -1,0 +1,8 @@
+#!/usr/bin/python
+
+# @(#) $Id$
+# -*- coding: utf8 -*-
+
+from AppWindow import AppWindow
+
+AppWindow().run()
