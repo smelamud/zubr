@@ -7,9 +7,11 @@ import gtk
 
 from StartScreen import StartScreen
 from ExamScreen import ExamScreen
+from Examiner import Examiner
 
 class AppWindow(gtk.Window):
 
+    examiner = None
     currentScreen = None
 
     def __init__(self):
@@ -27,6 +29,8 @@ class AppWindow(gtk.Window):
 	    'start': StartScreen(self),
 	    'exam': ExamScreen(self),
 	}
+
+	self.examiner = Examiner()
 
     def switchScreen(self, name):
 	if self.currentScreen:
