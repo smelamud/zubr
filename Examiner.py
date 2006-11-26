@@ -10,7 +10,7 @@ class Question:
 
     def __init__(self, question, answers):
 	self.question = question
-	if isinstance(answers, str):
+	if isinstance(answers, str) or isinstance(answers, unicode):
 	    self.answers = [answers]
 	else:
 	    self.answers = answers

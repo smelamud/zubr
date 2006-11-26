@@ -15,6 +15,9 @@ class ExamScreen(Screen):
     RIGHT = 1
     WRONG = 2
 
+    _RIGHT_COLOR = gtk.gdk.Color(0, 0x7FFF, 0)
+    _WRONG_COLOR = gtk.gdk.Color(0xBFFF, 0, 0)
+
     currentQuestion = None
     questionLabel = None
     resultLabel = None
@@ -60,14 +63,14 @@ class ExamScreen(Screen):
 
     def showResult(self, result):
 	if result == self.RIGHT:
-	    text = u'Верно'
-	    color = gtk.gdk.Color(0, 0x7FFF, 0)
+	    text = self.currentQuestion.answers[0]
+	    color = self._RIGHT_COLOR
 	elif result == self.WRONG:
-	    text = u'Неверно'
-	    color = gtk.gdk.Color(0xBFFF, 0, 0)
+	    text = self.currentQuestion.answers[0]
+	    color = self._WRONG_COLOR
 	else:
 	    text = u''
-	    color = gtk.gdk.Color(0, 0x7FFF, 0)
+	    color = self._RIGHT_COLOR
 	self.resultLabel.set_text(text)
 	self.resultLabel.modify_fg(gtk.STATE_NORMAL, color)
 
@@ -95,6 +98,7 @@ class ExamScreen(Screen):
 
     def askNext(self):
 	self.ask()
+	return False
 
     def show(self):
 	Screen.show(self)
