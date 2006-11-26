@@ -8,6 +8,9 @@ class Question:
     question = ""
     answers = []
 
+    rightAnswers = 0
+    totalAnswers = 0
+
     def __init__(self, question, answers):
 	self.question = question
 	if isinstance(answers, str) or isinstance(answers, unicode):
@@ -15,8 +18,16 @@ class Question:
 	else:
 	    self.answers = answers
     
+    def reset(self):
+	self.totalAnswers = 0
+	self.rightAnswers = 0
+
     def answer(self, answer):
-	return answer in self.answers
+	self.totalAnswers++
+	right = answer in self.answers
+	if right:
+	    self.rightAnswers++
+	return right
 
 class Examiner:
 
