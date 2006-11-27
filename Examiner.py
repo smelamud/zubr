@@ -1,7 +1,7 @@
 # @(#) $Id$
 # -*- coding: utf8 -*-
 
-from random import seed, choice
+import random
 
 class Question:
 
@@ -23,18 +23,21 @@ class Question:
 	self.rightAnswers = 0
 
     def answer(self, answer):
-	self.totalAnswers++
+	self.totalAnswers+=1
 	right = answer in self.answers
 	if right:
-	    self.rightAnswers++
+	    self.rightAnswers+=1
 	return right
 
 class Examiner:
 
     questions = []
 
+    rightAnswers = 0
+    totalAnswers = 0
+
     def __init__(self):
-	seed()
+	random.seed()
 
 	self.questions = [
 	    Question(u'Создание государства Израиль', u'1948'),
@@ -44,8 +47,18 @@ class Examiner:
 	    Question(u'Ливанская война (операция "Мир Галилее")', u'1982'),
 	]
 
+    def reset(self):
+	self.totalAnswers = 0
+	self.rightAnswers = 0
+	for q in questions:
+	    q.reset()
+
     def ask(self):
-	return choice(self.questions)
+	return random.choice(self.questions)
 
     def answer(self, question, answer):
-	return question.answer(answer)
+	self.totalAnswers+=1
+	right = question.answer(answer)
+	if right:
+	    self.rightAnswers+=1
+	return right

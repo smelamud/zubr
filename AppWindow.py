@@ -25,12 +25,12 @@ class AppWindow(gtk.Window):
 	self.resize(screen.get_width() / 2, screen.get_height() / 4)
 	self.connect('destroy', self.destroy)
 
+	self.examiner = Examiner()
+
 	self.screens = {
 	    'start': StartScreen(self),
 	    'exam': ExamScreen(self),
 	}
-
-	self.examiner = Examiner()
 
     def switchScreen(self, name):
 	if self.currentScreen:
