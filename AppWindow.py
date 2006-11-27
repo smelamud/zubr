@@ -28,7 +28,6 @@ class AppWindow(gtk.Window):
 
 	self.examiner = Examiner()
 	file = ExamFile('israel-dates.exam')
-	print repr(file.lessons[0].tasks[1].answers)
 	self.examiner.load(file, u'Войны')
 
 	self.screens = {

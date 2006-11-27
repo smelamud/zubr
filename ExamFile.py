@@ -7,15 +7,19 @@ from xml.dom import Node
 class Task:
  
     question = ""
-    answers = []
+    answers = None
+
+    def __init__(self):
+	self.answers = []
 
 class Lesson:
 
     title = ""
-    tasks = []
+    tasks = None
 
     def __init__(self, title = ""):
 	self.title = title
+	self.tasks = None
 
 class ExamFile:
 
@@ -36,7 +40,6 @@ class ExamFile:
 	return lesson
 
     def _parseTask(self, taskNode):
-	print 'New Task\n'
 	task = Task()
 	qNodes = taskNode.getElementsByTagName('question')
 	if len(qNodes) > 0:
@@ -44,7 +47,6 @@ class ExamFile:
 	for node in taskNode.getElementsByTagName('answer'):
 	    answer = self._textValue(node)
 	    if answer:
-		print 'New Answer\n'
 		task.answers.append(answer)
 	return task
 
