@@ -8,6 +8,7 @@ import gtk
 from StartScreen import StartScreen
 from ExamScreen import ExamScreen
 from Examiner import Examiner
+from ExamFile import ExamFile
 
 class AppWindow(gtk.Window):
 
@@ -26,6 +27,9 @@ class AppWindow(gtk.Window):
 	self.connect('destroy', self.destroy)
 
 	self.examiner = Examiner()
+	file = ExamFile('israel-dates.exam')
+	print repr(file.lessons[0].tasks[1].answers)
+	self.examiner.load(file, u'Войны')
 
 	self.screens = {
 	    'start': StartScreen(self),

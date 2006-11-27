@@ -11,12 +11,16 @@ class Question:
     rightAnswers = 0
     totalAnswers = 0
 
-    def __init__(self, question, answers):
-	self.question = question
-	if isinstance(answers, str) or isinstance(answers, unicode):
-	    self.answers = [answers]
+    def __init__(self, question = "", answers = [], task = None):
+	if task == None:
+	    self.question = question
+	    if isinstance(answers, str) or isinstance(answers, unicode):
+		self.answers = [answers]
+	    else:
+		self.answers = answers
 	else:
-	    self.answers = answers
+	    self.question = task.question
+	    self.answers = task.answers
     
     def reset(self):
 	self.totalAnswers = 0
@@ -39,13 +43,11 @@ class Examiner:
     def __init__(self):
 	random.seed()
 
-	self.questions = [
-	    Question(u'Создание государства Израиль', u'1948'),
-	    Question(u'Синайская кампания', u'1956'),
-	    Question(u'Шестидневная война', u'1967'),
-	    Question(u'Война Судного дня', u'1973'),
-	    Question(u'Ливанская война (операция "Мир Галилее")', u'1982'),
-	]
+    def load(self, file, lessons):
+	for lesson in file.lessons:
+	    if lesson.title in lessons:
+		for task in lesson.tasks:
+		    self.questions.append(Question(task = task))
 
     def reset(self):
 	self.totalAnswers = 0

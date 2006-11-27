@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+
+<exam>
+    <lesson title="Войны">
+	<task>
+	    <question>Создание государства Израиль</question>
+	    <answer>1948</answer>
+	</task>
+	<task>
+	    <question>Синайская кампания</question>
+	    <answer>1956</answer>
+	</task>
+	<task>
+	    <question>Шестидневная война</question>
+	    <answer>1967</answer>
+	</task>
+	<task>
+	    <question>Война Судного дня</question>
+	    <answer>1973</answer>
+	</task>
+	<task>
+	    <question>Ливанская война (операция "Мир Галилее")</question>
+	    <answer>1982</answer>
+	</task>
+    </lesson>
+</exam>
