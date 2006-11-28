@@ -33,7 +33,8 @@ class Scoreboard(gtk.VBox):
 	     self.examiner.totalAnswers - self.examiner.rightAnswers,
 	     self.examiner.totalAnswers))
 	self._timeLine.set_markup(
-	    u'Среднее время ответа - 0 сек (0 сек для последних вопросов)')
+	    u'Среднее время ответа - %d сек (%d сек для последних вопросов)' %
+	    (self.examiner.getAverageTime(), self.examiner.getLastTime()))
 
 class ExamScreen(Screen):
 
@@ -95,6 +96,9 @@ class ExamScreen(Screen):
 
     def ask(self):
 	self.currentQuestion = self.window.examiner.ask()
+	if self.currentQuestion == None:
+	    self.window.switchScreen('start')
+	    return
 	self.questionLabel.set_text(self.currentQuestion.question)
 	self.showResult(self.NONE)
 	self.entry.set_text("")
@@ -114,7 +118,11 @@ class ExamScreen(Screen):
 	self.entry.set_sensitive(False)
 	self.okButton.set_sensitive(False)
 	self.scoreboard.refresh()
-	gobject.timeout_add(3000, ExamScreen.askNext, self)
+	if right:
+	    timeout = 1000
+	else:
+	    timeout = 3000
+	gobject.timeout_add(timeout, ExamScreen.askNext, self)
 
     def askNext(self):
 	self.ask()
