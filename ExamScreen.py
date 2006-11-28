@@ -11,11 +11,6 @@ from Screen import Screen
 
 class Scoreboard(gtk.VBox):
 
-    examiner = None
-
-    _answerLine = None
-    _timeLine = None
-
     def __init__(self, examiner):
 	gtk.VBox.__init__(self, True, 0)
 	self._answerLine = gtk.Label()
@@ -48,13 +43,6 @@ class ExamScreen(Screen):
 
     _RIGHT_COLOR = gtk.gdk.Color(0, 0x7FFF, 0)
     _WRONG_COLOR = gtk.gdk.Color(0xBFFF, 0, 0)
-
-    scoreboard = None
-    currentQuestion = None
-    questionLabel = None
-    resultLabel = None
-    entry = None
-    okButton = None
 
     def __init__(self, window):
 	Screen.__init__(self, window, gtk.VBox(False, 20))
@@ -89,6 +77,8 @@ class ExamScreen(Screen):
 	button = gtk.Button(stock = gtk.STOCK_CLOSE)
 	button.connect('clicked', self.window.destroy)
 	bbox.pack_start(button)
+
+	self.currentQuestion = None
 
     def showResult(self, result):
 	if result == self.RIGHT:

@@ -6,28 +6,21 @@ from xml.dom import Node
 
 class Task:
  
-    question = ""
-    answers = None
-
     def __init__(self):
+	self.question = ""
 	self.answers = []
 
 class Lesson:
 
-    title = ""
-    tasks = None
-
     def __init__(self, title = ""):
 	self.title = title
-	self.tasks = None
+	self.tasks = []
 
 class ExamFile:
 
-    lessons = []
-
     def __init__(self, filename):
-	tree = parse(filename)
-	self._parseTree(tree)
+	self.lessons = []
+	self._parseTree(parse(filename))
 
     def _parseTree(self, treeNode):
 	for node in treeNode.getElementsByTagName('lesson'):

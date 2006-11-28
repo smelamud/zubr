@@ -12,9 +12,6 @@ from ExamFile import ExamFile
 
 class AppWindow(gtk.Window):
 
-    examiner = None
-    currentScreen = None
-
     def __init__(self):
 	gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
 
@@ -34,6 +31,7 @@ class AppWindow(gtk.Window):
 	    'start': StartScreen(self),
 	    'exam': ExamScreen(self),
 	}
+	self.currentScreen = None
 
     def switchScreen(self, name):
 	if self.currentScreen:

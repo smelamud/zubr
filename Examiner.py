@@ -5,12 +5,6 @@ import random
 
 class Question:
 
-    question = ""
-    answers = []
-
-    rightAnswers = 0
-    totalAnswers = 0
-
     def __init__(self, question = "", answers = [], task = None):
 	if task == None:
 	    self.question = question
@@ -21,7 +15,8 @@ class Question:
 	else:
 	    self.question = task.question
 	    self.answers = task.answers
-    
+	self.reset()
+
     def reset(self):
 	self.totalAnswers = 0
 	self.rightAnswers = 0
@@ -35,13 +30,10 @@ class Question:
 
 class Examiner:
 
-    questions = []
-
-    rightAnswers = 0
-    totalAnswers = 0
-
     def __init__(self):
 	random.seed()
+	self.questions = []
+	self.reset()
 
     def load(self, file, lessons):
 	for lesson in file.lessons:
@@ -52,7 +44,7 @@ class Examiner:
     def reset(self):
 	self.totalAnswers = 0
 	self.rightAnswers = 0
-	for q in questions:
+	for q in self.questions:
 	    q.reset()
 
     def ask(self):

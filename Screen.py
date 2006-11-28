@@ -3,9 +3,6 @@
 
 class Screen:
 
-    container = None
-    window = None
-
     def __init__(self, window, container):
 	self.container = container
 	self.window = window
