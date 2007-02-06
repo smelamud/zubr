@@ -39,16 +39,21 @@ class Examiner:
 	self.questions = []
 	self.reset()
 
-    def load(self, filename, lessons):
-	tree = parse(filename)
-	tasks = xpath.Evaluate('//task', tree)
-	for task in tasks:
-	    questions = xpath.Evaluate('./question/text()', task)
-	    if len(questions) == 0:
+    def load(self, examTree, lessons):
+	self.questions = []
+	allLessons = xpath.Evaluate('//lesson', examTree)
+	for lesson in allLessons:
+	    if lesson.getAttribute('title') not in lessons:
 		continue
-	    question = questions[0].data
-	    answers = [a.data for a in xpath.Evaluate('./answer/text()', task)]
-	    self.questions.append(Question(question, answers))
+	    tasks = xpath.Evaluate('./task', lesson)
+	    for task in tasks:
+		questions = xpath.Evaluate('./question/text()', task)
+		if len(questions) == 0:
+		    continue
+		question = questions[0].data
+		answers = [a.data for a
+				in xpath.Evaluate('./answer/text()', task)]
+		self.questions.append(Question(question, answers))
 	self.reset()
 
     def reset(self):

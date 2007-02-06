@@ -23,4 +23,18 @@
 	    <answer>1982</answer>
 	</task>
     </lesson>
+    <lesson title="Мирный процесс">
+	<task>
+	    <question>Отдача Синайского полуострова</question>
+	    <answer>1977</answer>
+	</task>
+	<task>
+	    <question>Мирный договор с Иорданией</question>
+	    <answer>1994</answer>
+	</task>
+	<task>
+	    <question>Соглашения Осло</question>
+	    <answer>1996</answer>
+	</task>
+    </lesson>
 </exam>

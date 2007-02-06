@@ -31,9 +31,18 @@ class StartScreen(Screen):
 	self.file.connect('selection-changed', self.fileChanged)
 	fbox.pack_start(self.file, True, True)
 
-	self.listStore = gtk.ListStore(gobject.TYPE_STRING)
-	self.listView = gtk.TreeView(self.listStore)
-	self.container.pack_start(self.listView, True, True)
+	self.lessonStore = gtk.ListStore(gobject.TYPE_STRING)
+	self.lessonView = gtk.TreeView(self.lessonStore)
+	self.lessonView.set_headers_visible(False)
+	self.lessonView.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+	column = gtk.TreeViewColumn()
+	self.lessonView.append_column(column)
+	renderer = gtk.CellRendererText()
+	column.pack_start(renderer, True)
+	column.add_attribute(renderer, 'text', 0)
+	self.lessonView.get_selection().connect('changed',
+	    self.lessonSelectionChanged)
+	self.container.pack_start(self.lessonView, True, True)
 
 	bbox = gtk.HButtonBox()
 	bbox.set_spacing(5)
@@ -54,12 +63,20 @@ class StartScreen(Screen):
 
     def fileChanged(self, filechooser = None):
 	filename = self.file.get_filename()
+	self.lessonStore.clear()
 	if filename != None:
-	    tree = parse(filename)
-	    lessons = xpath.Evaluate('//lesson/@title', tree)
+	    self.examTree = parse(filename)
+	    lessons = xpath.Evaluate('//lesson/@title', self.examTree)
 	    for lesson in lessons:
-		self.listStore.append((lesson.nodeValue, ))
+		self.lessonStore.append((lesson.nodeValue, ))
+	self.lessonSelectionChanged()
+    
+    def lessonSelectionChanged(self, param1 = None, param2 = None):
+	n = self.lessonView.get_selection().count_selected_rows()
+	if n > 0:
 	    self.playButton.set_sensitive(True)
-	    self.examiner.load(filename, u'Войны')
+	    sels = self.lessonView.get_selection().get_selected_rows()[1]
+	    lessons = [self.lessonStore[row][0] for row in sels]
+	    self.examiner.load(self.examTree, lessons)
 	else:
 	    self.playButton.set_sensitive(False)
