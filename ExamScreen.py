@@ -72,8 +72,16 @@ class ExamScreen(Screen):
 	hbox.pack_start(self.okButton, False)
 
 	bbox = gtk.HButtonBox()
+	bbox.set_spacing(5)
 	bbox.set_layout(gtk.BUTTONBOX_END)
 	self.container.pack_start(bbox, False)
+
+	button = gtk.Button(stock = gtk.STOCK_MEDIA_PAUSE)
+	bbox.pack_start(button)
+
+	button = gtk.Button(stock = gtk.STOCK_MEDIA_STOP)
+	button.connect('clicked', self.stop)
+	bbox.pack_start(button)
 
 	button = gtk.Button(stock = gtk.STOCK_CLOSE)
 	button.connect('clicked', self.window.destroy)
@@ -97,7 +105,7 @@ class ExamScreen(Screen):
     def ask(self):
 	self.currentQuestion = self.window.examiner.ask()
 	if self.currentQuestion == None:
-	    self.window.switchScreen('start')
+	    self.stop()
 	    return
 	self.questionLabel.set_text(self.currentQuestion.question)
 	self.showResult(self.NONE)
@@ -131,3 +139,6 @@ class ExamScreen(Screen):
     def show(self):
 	Screen.show(self)
 	self.ask()
+
+    def stop(self, widget = None):
+	self.window.switchScreen('start')
