@@ -12,6 +12,7 @@ class StartScreen(Screen):
 
     def __init__(self, window):
 	Screen.__init__(self, window, gtk.VBox(False))
+	self.examiner = window.examiner
 
 	fbox = gtk.HBox(False)
 	self.container.pack_start(fbox, True, False)
@@ -46,4 +47,9 @@ class StartScreen(Screen):
 	self.window.switchScreen('exam')
 
     def fileChanged(self, filechooser = None):
-	self.playButton.set_sensitive(self.file.get_filename() != None)
+	filename = self.file.get_filename()
+	if filename != None:
+	    self.playButton.set_sensitive(True)
+	    self.examiner.load(filename, u'Войны')
+	else:
+	    self.playButton.set_sensitive(False)

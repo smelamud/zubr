@@ -3,6 +3,8 @@
 
 import random
 import time
+from xml.dom.minidom import parse
+from xml import xpath
 
 class Question:
 
@@ -37,11 +39,16 @@ class Examiner:
 	self.questions = []
 	self.reset()
 
-    def load(self, file, lessons):
-	for lesson in file.lessons:
-	    if lesson.title in lessons:
-		for task in lesson.tasks:
-		    self.questions.append(Question(task = task))
+    def load(self, filename, lessons):
+	tree = parse(filename)
+	tasks = xpath.Evaluate('//task', tree)
+	for task in tasks:
+	    questions = xpath.Evaluate('./question/text()', task)
+	    if len(questions) == 0:
+		continue
+	    question = questions[0].data
+	    answers = [a.data for a in xpath.Evaluate('./answer/text()', task)]
+	    self.questions.append(Question(question, answers))
 	self.reset()
 
     def reset(self):

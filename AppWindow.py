@@ -24,8 +24,6 @@ class AppWindow(gtk.Window):
 	self.connect('destroy', self.destroy)
 
 	self.examiner = Examiner()
-	file = ExamFile('israel-dates.exam')
-	self.examiner.load(file, u'Войны')
 
 	self.screens = {
 	    'start': StartScreen(self),
