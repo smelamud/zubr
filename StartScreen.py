@@ -13,18 +13,30 @@ class StartScreen(Screen):
     def __init__(self, window):
 	Screen.__init__(self, window, gtk.VBox(False))
 
-	label = gtk.Label(u'Начнем-с...')
-	label.modify_font(pango.FontDescription('bold'))
-	self.container.pack_start(label, True, False)
+	fbox = gtk.HBox(False)
+	self.container.pack_start(fbox, True, False)
+
+	label = gtk.Label(u'Файл с вопросами')
+	fbox.pack_start(label, False, padding = 5)
+
+	self.file = gtk.FileChooserButton('Файл с вопросами')
+	filter = gtk.FileFilter()
+	filter.set_name('Exam file')
+	filter.add_pattern('*.exam')
+	self.file.add_filter(filter)
+	self.file.connect('selection-changed', self.fileChanged)
+
+	fbox.pack_start(self.file, True, True)
 
 	bbox = gtk.HButtonBox()
 	bbox.set_spacing(5)
 	bbox.set_layout(gtk.BUTTONBOX_END)
 	self.container.pack_start(bbox, False)
 
-	button = gtk.Button(stock = gtk.STOCK_GO_FORWARD)
-	button.connect('clicked', self.start)
-	bbox.pack_start(button)
+	self.playButton = gtk.Button(stock = gtk.STOCK_MEDIA_PLAY)
+	self.playButton.connect('clicked', self.start)
+	self.fileChanged()
+	bbox.pack_start(self.playButton)
 
 	button = gtk.Button(stock = gtk.STOCK_CLOSE)
 	button.connect('clicked', self.window.destroy)
@@ -32,3 +44,6 @@ class StartScreen(Screen):
 
     def start(self, widget, data = None):
 	self.window.switchScreen('exam')
+
+    def fileChanged(self, filechooser = None):
+	self.playButton.set_sensitive(self.file.get_filename() != None)
