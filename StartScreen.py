@@ -48,7 +48,7 @@ class StartScreen(Screen):
 	self.listPaned.pack1(self.lessonView, True, False)
 
 	scroller = gtk.ScrolledWindow()
-	scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+	scroller.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 	self.listPaned.pack2(scroller, True)
 
 	self.questionStore = gtk.ListStore(gobject.TYPE_STRING,
