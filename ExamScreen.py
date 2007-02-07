@@ -77,6 +77,7 @@ class ExamScreen(Screen):
 	self.container.pack_start(bbox, False)
 
 	button = gtk.Button(stock = gtk.STOCK_MEDIA_PAUSE)
+	button.connect('clicked', self.pause)
 	bbox.pack_start(button)
 
 	button = gtk.Button(stock = gtk.STOCK_MEDIA_STOP)
@@ -138,7 +139,16 @@ class ExamScreen(Screen):
 
     def show(self):
 	Screen.show(self)
+	self.window.add_events(gtk.gdk.FOCUS_CHANGE_MASK)
+	self.focusHandler = self.window.connect('focus-out-event', self.pause)
 	self.ask()
+
+    def hide(self):
+	self.window.disconnect(self.focusHandler)
+	Screen.hide(self)
+
+    def pause(self, param1 = None, param2 = None):
+	self.window.switchScreen('pause')
 
     def stop(self, widget = None):
 	self.window.switchScreen('start')

@@ -59,6 +59,7 @@ class StartScreen(Screen):
 	bbox.pack_start(button)
 
     def start(self, widget, data = None):
+	self.examiner.reset()
 	self.window.switchScreen('exam')
 
     def fileChanged(self, filechooser = None):

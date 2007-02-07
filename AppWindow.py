@@ -7,6 +7,7 @@ import gtk
 
 from StartScreen import StartScreen
 from ExamScreen import ExamScreen
+from PauseScreen import PauseScreen
 from Examiner import Examiner
 from ExamFile import ExamFile
 
@@ -28,6 +29,7 @@ class AppWindow(gtk.Window):
 	self.screens = {
 	    'start': StartScreen(self),
 	    'exam': ExamScreen(self),
+	    'pause': PauseScreen(self),
 	}
 	self.currentScreen = None
 

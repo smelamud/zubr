@@ -75,10 +75,10 @@ class Examiner:
 	return question
 
     def answer(self, question, answer):
-	self.totalAnswers+=1
+	self.totalAnswers += 1
 	right = question.answer(answer)
 	if right:
-	    self.rightAnswers+=1
+	    self.rightAnswers += 1
 	dur = int(time.time()) - question.startTime
 	self.totalTime += dur
 	self.lastTime.append(dur)
