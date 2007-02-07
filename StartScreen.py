@@ -31,18 +31,42 @@ class StartScreen(Screen):
 	self.file.connect('selection-changed', self.fileChanged)
 	fbox.pack_start(self.file, True, True)
 
+	self.listPaned = gtk.HPaned()
+	self.container.pack_start(self.listPaned, True, True)
+
 	self.lessonStore = gtk.ListStore(gobject.TYPE_STRING)
 	self.lessonView = gtk.TreeView(self.lessonStore)
-	self.lessonView.set_headers_visible(False)
 	self.lessonView.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
 	column = gtk.TreeViewColumn()
+	column.set_title(u'Урок')
 	self.lessonView.append_column(column)
 	renderer = gtk.CellRendererText()
 	column.pack_start(renderer, True)
 	column.add_attribute(renderer, 'text', 0)
 	self.lessonView.get_selection().connect('changed',
 	    self.lessonSelectionChanged)
-	self.container.pack_start(self.lessonView, True, True)
+	self.listPaned.pack1(self.lessonView, True, False)
+
+	scroller = gtk.ScrolledWindow()
+	scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+	self.listPaned.pack2(scroller, True)
+
+	self.questionStore = gtk.ListStore(gobject.TYPE_STRING,
+		gobject.TYPE_STRING)
+	self.questionView = gtk.TreeView(self.questionStore)
+	column = gtk.TreeViewColumn()
+	column.set_title(u'Вопрос')
+	self.questionView.append_column(column)
+	renderer = gtk.CellRendererText()
+	column.pack_start(renderer, True)
+	column.add_attribute(renderer, 'text', 0)
+	column = gtk.TreeViewColumn()
+	column.set_title(u'Ответы')
+	self.questionView.append_column(column)
+	renderer = gtk.CellRendererText()
+	column.pack_start(renderer, True)
+	column.add_attribute(renderer, 'text', 1)
+	scroller.add(self.questionView)
 
 	bbox = gtk.HButtonBox()
 	bbox.set_spacing(5)
@@ -57,6 +81,11 @@ class StartScreen(Screen):
 	button = gtk.Button(stock = gtk.STOCK_CLOSE)
 	button.connect('clicked', self.window.destroy)
 	bbox.pack_start(button)
+
+    def show(self):
+	Screen.show(self)
+	#print self.container.get_allocation().width
+	#self.listPaned.set_position(self.listPaned.get_allocation().width / 2)
 
     def start(self, widget, data = None):
 	self.examiner.reset()
@@ -74,10 +103,13 @@ class StartScreen(Screen):
     
     def lessonSelectionChanged(self, param1 = None, param2 = None):
 	n = self.lessonView.get_selection().count_selected_rows()
+	self.questionStore.clear()
 	if n > 0:
 	    self.playButton.set_sensitive(True)
 	    sels = self.lessonView.get_selection().get_selected_rows()[1]
 	    lessons = [self.lessonStore[row][0] for row in sels]
 	    self.examiner.load(self.examTree, lessons)
+	    for q in self.examiner.questions:
+		self.questionStore.append((q.question, q.answers[0]))
 	else:
 	    self.playButton.set_sensitive(False)
