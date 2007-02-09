@@ -15,10 +15,12 @@ class Scoreboard(gtk.VBox):
 	gtk.VBox.__init__(self, True, 0)
 	self._answerLine = gtk.Label()
 	self._answerLine.set_alignment(0.5, 0)
+	self._answerLine.modify_font(pango.FontDescription('12'))
 	self.pack_start(self._answerLine, False)
 
 	self._timeLine = gtk.Label()
 	self._timeLine.set_alignment(0.5, 0)
+	self._timeLine.modify_font(pango.FontDescription('12'))
 	self.pack_start(self._timeLine, False)
 
 	self.examiner = examiner
@@ -53,17 +55,19 @@ class ExamScreen(Screen):
 
 	self.questionLabel = gtk.Label(u'Вопрос')
 	self.questionLabel.set_alignment(0, 1)
+	self.questionLabel.modify_font(pango.FontDescription('14'))
 	self.container.pack_start(self.questionLabel)
 
 	self.resultLabel = gtk.Label()
 	self.resultLabel.set_alignment(0, 0)
-	self.resultLabel.modify_font(pango.FontDescription('bold'))
+	self.resultLabel.modify_font(pango.FontDescription('bold 14'))
 	self.container.pack_start(self.resultLabel, False)
 
-	hbox = gtk.HBox(False, 5)
+	hbox = gtk.HBox(False, 2)
 	self.container.pack_start(hbox, False)
 
 	self.entry = gtk.Entry()
+	self.entry.modify_font(pango.FontDescription('14'))
 	self.entry.set_activates_default(True)
 	hbox.pack_start(self.entry)
 
@@ -139,6 +143,7 @@ class ExamScreen(Screen):
 
     def show(self):
 	Screen.show(self)
+	self.scoreboard.refresh()
 	self.window.add_events(gtk.gdk.FOCUS_CHANGE_MASK)
 	self.focusHandler = self.window.connect('focus-out-event', self.pause)
 	self.ask()

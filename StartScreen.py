@@ -34,6 +34,10 @@ class StartScreen(Screen):
 	self.listPaned = gtk.HPaned()
 	self.container.pack_start(self.listPaned, True, True)
 
+	scroller = gtk.ScrolledWindow()
+	scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+	self.listPaned.pack1(scroller, True)
+
 	self.lessonStore = gtk.ListStore(gobject.TYPE_STRING)
 	self.lessonView = gtk.TreeView(self.lessonStore)
 	self.lessonView.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
@@ -45,10 +49,10 @@ class StartScreen(Screen):
 	column.add_attribute(renderer, 'text', 0)
 	self.lessonView.get_selection().connect('changed',
 	    self.lessonSelectionChanged)
-	self.listPaned.pack1(self.lessonView, True, False)
+	scroller.add(self.lessonView)
 
 	scroller = gtk.ScrolledWindow()
-	scroller.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+	scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 	self.listPaned.pack2(scroller, True)
 
 	self.questionStore = gtk.ListStore(gobject.TYPE_STRING,
@@ -84,8 +88,6 @@ class StartScreen(Screen):
 
     def show(self):
 	Screen.show(self)
-	#print self.container.get_allocation().width
-	#self.listPaned.set_position(self.listPaned.get_allocation().width / 2)
 
     def start(self, widget, data = None):
 	self.examiner.reset()
