@@ -156,4 +156,4 @@ class ExamScreen(Screen):
 	self.window.switchScreen('pause')
 
     def stop(self, widget = None):
-	self.window.switchScreen('start')
+	self.window.switchScreen('finish')
