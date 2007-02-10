@@ -16,8 +16,8 @@ class AppWindow(gtk.Window):
     def __init__(self):
 	gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
 
+	self.setExamTitle('')
 	self.set_position(gtk.WIN_POS_CENTER)
-	self.set_title(u'Зубрёжка')
 	self.set_border_width(10)
 	self.set_resizable(True)
 	screen = self.get_screen()
@@ -33,6 +33,12 @@ class AppWindow(gtk.Window):
 	    'finish': FinishScreen(self),
 	}
 	self.currentScreen = None
+
+    def setExamTitle(self, title):
+	if not title:
+	    self.set_title(u'Зубрёжка')
+	else:
+	    self.set_title(u'Зубрёжка - ' + title)
 
     def switchScreen(self, name):
 	if self.currentScreen:

@@ -17,11 +17,11 @@ class StartScreen(Screen):
 	Screen.__init__(self, window, gtk.VBox(False, spacing = 5))
 	self.examiner = window.examiner
 
-	fbox = gtk.HBox(False)
+	fbox = gtk.HBox(False, 5)
 	self.container.pack_start(fbox, False)
 
 	label = gtk.Label(u'Файл с вопросами')
-	fbox.pack_start(label, False, padding = 5)
+	fbox.pack_start(label, False)
 
 	self.file = gtk.FileChooserButton('Файл с вопросами')
 	filter = gtk.FileFilter()
@@ -30,6 +30,9 @@ class StartScreen(Screen):
 	self.file.add_filter(filter)
 	self.file.connect('selection-changed', self.fileChanged)
 	fbox.pack_start(self.file, True, True)
+
+	self.editButton = gtk.Button(stock = gtk.STOCK_EDIT)
+	fbox.pack_start(self.editButton, False)
 
 	self.listPaned = gtk.HPaned()
 	self.container.pack_start(self.listPaned, True, True)
@@ -97,10 +100,19 @@ class StartScreen(Screen):
 	filename = self.file.get_filename()
 	self.lessonStore.clear()
 	if filename != None:
+	    self.editButton.set_sensitive(True)
 	    self.examTree = parse(filename)
+	    title = xpath.Evaluate('//exam/@title', self.examTree)
+	    if len(title) > 0:
+		self.window.setExamTitle(title[0].nodeValue)
+	    else:
+		self.window.setExamTitle('')
 	    lessons = xpath.Evaluate('//lesson/@title', self.examTree)
 	    for lesson in lessons:
 		self.lessonStore.append((lesson.nodeValue, ))
+	else:
+	    self.editButton.set_sensitive(False)
+	    self.window.setExamTitle('')
 	self.lessonSelectionChanged()
     
     def lessonSelectionChanged(self, param1 = None, param2 = None):
