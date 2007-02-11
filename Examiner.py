@@ -35,7 +35,7 @@ class Examiner:
 
     def __init__(self):
 	random.seed()
-	self.maxRightAnswers = 3
+	self.maxRightAnswers = 5
 	self.questions = []
 	self.reset()
 
@@ -89,8 +89,8 @@ class Examiner:
 
     def moveDown(self, question):
 	self.questionMap[0].remove(question)
-	if self.maxRightAnswers > 0 \
-	    and question.rightAnswers < self.maxRightAnswers:
+	if self.maxRightAnswers <= 0 \
+		or question.rightAnswers < self.maxRightAnswers:
 	    while len(self.questionMap) < question.rightAnswers + 2:
 		self.questionMap.append([])
 	    self.questionMap[question.rightAnswers + 1].append(question)

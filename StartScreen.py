@@ -75,6 +75,18 @@ class StartScreen(Screen):
 	column.add_attribute(renderer, 'text', 1)
 	scroller.add(self.questionView)
 
+	hbox = gtk.HBox(False, 5)
+	self.container.pack_start(hbox, False)
+
+	hbox.pack_start(gtk.Label(u'Вопрос считается зазубренным после'), False)
+	self.answerCount = gtk.combo_box_new_text()
+	for item in [1, 2, 3, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100, u'\u221e']:
+	    self.answerCount.append_text(str(item))
+	self.answerCount.set_active(3)
+	self.answerCount.connect('changed', self.answerCountChanged)
+	hbox.pack_start(self.answerCount, False)
+	hbox.pack_start(gtk.Label(u'правильных ответов'), False)
+
 	bbox = gtk.HButtonBox()
 	bbox.set_spacing(5)
 	bbox.set_layout(gtk.BUTTONBOX_END)
@@ -127,3 +139,14 @@ class StartScreen(Screen):
 		self.questionStore.append((q.question, q.answers[0]))
 	else:
 	    self.playButton.set_sensitive(False)
+
+    def answerCountChanged(self, widget):
+	text = self.answerCount.get_active_text()
+	if text == None:
+	    value = 0
+	else:
+	    try:
+		value = int(text)
+	    except ValueError:
+		value = 0
+	self.examiner.maxRightAnswers = value
