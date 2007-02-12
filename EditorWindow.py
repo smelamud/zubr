@@ -71,6 +71,7 @@ class EditorWindow(gtk.Window):
 	self.lessonView.append_column(column)
 	renderer = gtk.CellRendererText()
 	renderer.set_property('editable', True)
+	renderer.connect('edited', self.lessonTitleEdited)
 	column.pack_start(renderer, True)
 	column.add_attribute(renderer, 'text', 0)
 	self.lessonView.get_selection().connect('changed',
@@ -156,6 +157,8 @@ class EditorWindow(gtk.Window):
 	filter.add_pattern('*.exam')
 	dialog.add_filter(filter)
 	dialog.set_do_overwrite_confirmation(True)
+	if self.filename != None:
+	    dialog.set_filename(self.filename)
 	result = dialog.run()
 	if result == gtk.RESPONSE_OK:
 	    self.filename = dialog.get_filename()
@@ -192,7 +195,7 @@ class EditorWindow(gtk.Window):
 
     def saveFile(self):
 	f = file(self.filename, 'w')
-	f.write(self.doc.toprettyxml())
+	f.write(self.doc.toxml())
 	self.setChanged(False)
 
     def setChanged(self, value):
@@ -203,6 +206,13 @@ class EditorWindow(gtk.Window):
 	exams = xpath.Evaluate('//exam', self.doc)
 	assert len(exams) > 0
 	exams[0].setAttribute('title', self.titleEntry.get_text())
+	self.setChanged(True)
+
+    def lessonTitleEdited(self, widget, path, new_text):
+	self.lessonStore[int(path)][0] = new_text
+	lessons = xpath.Evaluate('//lesson[%s + 1]' % path, self.doc)
+	assert len(lessons) > 0
+	lessons[0].setAttribute('title', new_text)
 	self.setChanged(True)
 
     def lessonSelectionChanged(self, param1 = None, param2 = None):
