@@ -10,6 +10,7 @@ from xml.dom.minidom import parse
 from xml import xpath
 
 from Screen import Screen
+from EditorWindow import EditorWindow
 
 class StartScreen(Screen):
 
@@ -32,6 +33,7 @@ class StartScreen(Screen):
 	fbox.pack_start(self.file, True, True)
 
 	self.editButton = gtk.Button(stock = gtk.STOCK_EDIT)
+	self.editButton.connect('clicked', self.edit)
 	fbox.pack_start(self.editButton, False)
 
 	self.listPaned = gtk.HPaned()
@@ -108,11 +110,14 @@ class StartScreen(Screen):
 	self.examiner.reset()
 	self.window.switchScreen('exam')
 
+    def edit(self, widget):
+	editor = EditorWindow(self.file.get_filename())
+	editor.show()
+
     def fileChanged(self, filechooser = None):
 	filename = self.file.get_filename()
 	self.lessonStore.clear()
 	if filename != None:
-	    self.editButton.set_sensitive(True)
 	    self.examTree = parse(filename)
 	    title = xpath.Evaluate('//exam/@title', self.examTree)
 	    if len(title) > 0:
@@ -123,7 +128,6 @@ class StartScreen(Screen):
 	    for lesson in lessons:
 		self.lessonStore.append((lesson.nodeValue, ))
 	else:
-	    self.editButton.set_sensitive(False)
 	    self.window.setExamTitle('')
 	self.lessonSelectionChanged()
     
@@ -136,7 +140,7 @@ class StartScreen(Screen):
 	    lessons = [self.lessonStore[row][0] for row in sels]
 	    self.examiner.load(self.examTree, lessons)
 	    for q in self.examiner.questions:
-		self.questionStore.append((q.question, q.answers[0]))
+		self.questionStore.append((q.question, u';'.join(q.answers)))
 	else:
 	    self.playButton.set_sensitive(False)
 
