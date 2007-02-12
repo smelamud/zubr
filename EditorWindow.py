@@ -16,6 +16,7 @@ class EditorWindow(gtk.Window):
 	self.running = False
 	self.filename = None
 	self.doc = None
+	self.changed = False
 
 	self.set_position(gtk.WIN_POS_CENTER)
 	self.set_resizable(True)
@@ -32,8 +33,12 @@ class EditorWindow(gtk.Window):
 	toolButton = gtk.ToolButton(gtk.STOCK_OPEN)
 	toolButton.connect('clicked', self.open)
 	toolbar.insert(toolButton, -1)
-	toolbar.insert(gtk.ToolButton(gtk.STOCK_SAVE), -1)
-	toolbar.insert(gtk.ToolButton(gtk.STOCK_SAVE_AS), -1)
+	self.saveButton = gtk.ToolButton(gtk.STOCK_SAVE);
+	self.saveButton.connect('clicked', self.save)
+	toolbar.insert(self.saveButton, -1)
+	toolButton = gtk.ToolButton(gtk.STOCK_SAVE_AS)
+	toolButton.connect('clicked', self.saveAs)
+	toolbar.insert(toolButton, -1)
 	toolbar.insert(gtk.SeparatorToolItem(), -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_CLOSE)
 	toolButton.connect('clicked', self.close)
@@ -48,6 +53,7 @@ class EditorWindow(gtk.Window):
 	fbox.pack_start(label, False)
 
 	self.titleEntry = gtk.Entry()
+	self.titleEntry.connect('changed', self.titleEntryChanged)
 	fbox.pack_start(self.titleEntry, True, True)
 	self.titleEntry.grab_focus()
 
@@ -64,6 +70,7 @@ class EditorWindow(gtk.Window):
 	column.set_title(u'Урок')
 	self.lessonView.append_column(column)
 	renderer = gtk.CellRendererText()
+	renderer.set_property('editable', True)
 	column.pack_start(renderer, True)
 	column.add_attribute(renderer, 'text', 0)
 	self.lessonView.get_selection().connect('changed',
@@ -82,12 +89,14 @@ class EditorWindow(gtk.Window):
 	column.set_title(u'Вопрос')
 	self.questionView.append_column(column)
 	renderer = gtk.CellRendererText()
+	renderer.set_property('editable', True)
 	column.pack_start(renderer, True)
 	column.add_attribute(renderer, 'text', 0)
 	column = gtk.TreeViewColumn()
 	column.set_title(u'Ответы')
 	self.questionView.append_column(column)
 	renderer = gtk.CellRendererText()
+	renderer.set_property('editable', True)
 	column.pack_start(renderer, True)
 	column.add_attribute(renderer, 'text', 1)
 	scroller.add(self.questionView)
@@ -111,9 +120,10 @@ class EditorWindow(gtk.Window):
 	self.openFile(None)
 
     def open(self, widget):
-	dialog = gtk.FileChooserDialog(title = u'Открыть файл',
+	dialog = gtk.FileChooserDialog(
+		title = u'Открыть файл',
 		buttons = (
-		    gtk.STOCK_OK, gtk.RESPONSE_OK,
+		    gtk.STOCK_OPEN, gtk.RESPONSE_OK,
 		    gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
 		)
 	)
@@ -124,6 +134,33 @@ class EditorWindow(gtk.Window):
 	result = dialog.run()
 	if result == gtk.RESPONSE_OK:
 	    self.openFile(dialog.get_filename())
+	dialog.destroy()
+
+    def save(self, widget):
+	if self.filename == None:
+	    self.saveAs(widget)
+	else:
+	    self.saveFile()
+
+    def saveAs(self, widget):
+	dialog = gtk.FileChooserDialog(
+		title = u'Сохранить файл',
+		action = gtk.FILE_CHOOSER_ACTION_SAVE,
+		buttons = (
+		    gtk.STOCK_SAVE, gtk.RESPONSE_OK,
+		    gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
+		)
+	)
+	filter = gtk.FileFilter()
+	filter.set_name('Exam file')
+	filter.add_pattern('*.exam')
+	dialog.add_filter(filter)
+	dialog.set_do_overwrite_confirmation(True)
+	result = dialog.run()
+	if result == gtk.RESPONSE_OK:
+	    self.filename = dialog.get_filename()
+	    self.setExamTitle(self.filename)
+	    self.saveFile()
 	dialog.destroy()
 
     def close(self, widget):
@@ -151,7 +188,23 @@ class EditorWindow(gtk.Window):
 	    self.setExamTitle('')
 	    self.titleEntry.set_text('')
 	self.lessonSelectionChanged()
-    
+	self.setChanged(False)
+
+    def saveFile(self):
+	f = file(self.filename, 'w')
+	f.write(self.doc.toprettyxml())
+	self.setChanged(False)
+
+    def setChanged(self, value):
+	self.changed = value
+	self.saveButton.set_sensitive(self.changed)
+
+    def titleEntryChanged(self, widget):
+	exams = xpath.Evaluate('//exam', self.doc)
+	assert len(exams) > 0
+	exams[0].setAttribute('title', self.titleEntry.get_text())
+	self.setChanged(True)
+
     def lessonSelectionChanged(self, param1 = None, param2 = None):
 	(model, iter) = self.lessonView.get_selection().get_selected()
 	self.questionStore.clear()
