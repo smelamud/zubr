@@ -57,12 +57,25 @@ class EditorWindow(gtk.Window):
 	fbox.pack_start(self.titleEntry, True, True)
 	self.titleEntry.grab_focus()
 
-	self.listPaned = gtk.HPaned()
-	container.pack_start(self.listPaned, True, True)
+	listPaned = gtk.HPaned()
+	container.pack_start(listPaned, True, True)
+
+	tbox = gtk.VBox(False)
+	listPaned.pack1(tbox, True)
+
+	toolbar = gtk.Toolbar()
+	toolbar.set_style(gtk.TOOLBAR_ICONS)
+	toolButton = gtk.ToolButton(gtk.STOCK_NEW)
+	toolbar.insert(toolButton, -1)
+	toolButton = gtk.ToolButton(gtk.STOCK_EDIT)
+	toolbar.insert(toolButton, -1)
+	toolButton = gtk.ToolButton(gtk.STOCK_DELETE)
+	toolbar.insert(toolButton, -1)
+	tbox.pack_start(toolbar, False)
 
 	scroller = gtk.ScrolledWindow()
 	scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-	self.listPaned.pack1(scroller, True)
+	tbox.pack_start(scroller, True, True)
 
 	self.lessonStore = gtk.ListStore(gobject.TYPE_STRING)
 	self.lessonView = gtk.TreeView(self.lessonStore)
@@ -78,9 +91,22 @@ class EditorWindow(gtk.Window):
 	    self.lessonSelectionChanged)
 	scroller.add(self.lessonView)
 
+	tbox = gtk.VBox(False)
+	listPaned.pack2(tbox, True)
+
+	toolbar = gtk.Toolbar()
+	toolbar.set_style(gtk.TOOLBAR_ICONS)
+	toolButton = gtk.ToolButton(gtk.STOCK_NEW)
+	toolbar.insert(toolButton, -1)
+	toolButton = gtk.ToolButton(gtk.STOCK_EDIT)
+	toolbar.insert(toolButton, -1)
+	toolButton = gtk.ToolButton(gtk.STOCK_DELETE)
+	toolbar.insert(toolButton, -1)
+	tbox.pack_start(toolbar, False)
+
 	scroller = gtk.ScrolledWindow()
 	scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-	self.listPaned.pack2(scroller, True)
+	tbox.pack_start(scroller, True, True)
 
 	self.questionStore = gtk.ListStore(gobject.TYPE_STRING,
 		gobject.TYPE_STRING)
