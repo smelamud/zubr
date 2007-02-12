@@ -13,11 +13,14 @@ class EditorWindow(gtk.Window):
 
     def __init__(self, filename = None):
 	gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+	self.running = False
 	self.filename = None
 	self.doc = None
 
 	self.set_position(gtk.WIN_POS_CENTER)
 	self.set_resizable(True)
+	self.resize(600, 600)
+	self.connect('destroy', self.close)
 
 	container = gtk.VBox(False, 5)
 	self.add(container)
@@ -46,6 +49,7 @@ class EditorWindow(gtk.Window):
 
 	self.titleEntry = gtk.Entry()
 	fbox.pack_start(self.titleEntry, True, True)
+	self.titleEntry.grab_focus()
 
 	self.listPaned = gtk.HPaned()
 	container.pack_start(self.listPaned, True, True)
@@ -98,6 +102,11 @@ class EditorWindow(gtk.Window):
 	else:
 	    self.set_title(u'Зубрёжка (редактор) - ' + title)
 
+    def run(self):
+	self.running = True
+	self.show()
+	gtk.main()
+
     def new(self, widget):
 	self.openFile(None)
 
@@ -120,6 +129,8 @@ class EditorWindow(gtk.Window):
     def close(self, widget):
 	self.openFile(None)
 	self.destroy()
+	if self.running:
+	    gtk.main_quit()
 
     def openFile(self, filename):
 	self.lessonStore.clear()

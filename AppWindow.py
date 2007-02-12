@@ -21,7 +21,7 @@ class AppWindow(gtk.Window):
 	self.set_border_width(10)
 	self.set_resizable(True)
 	screen = self.get_screen()
-	self.resize(screen.get_width() / 2, screen.get_height() / 4)
+	self.resize(600, 300)
 	self.connect('destroy', self.destroy)
 
 	self.examiner = Examiner()

@@ -1,0 +1,8 @@
+#!/usr/bin/python
+
+# @(#) $Id: zubr 2 2006-11-20 00:08:59Z balu $
+# -*- coding: utf8 -*-
+
+from EditorWindow import EditorWindow
+
+EditorWindow().run()
