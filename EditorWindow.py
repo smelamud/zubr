@@ -9,7 +9,7 @@ from xml import xpath
 from xml.dom.minidom import parse
 from xml.dom import getDOMImplementation
 
-from EditorDialogs import LessonEditDialog
+from EditorDialogs import LessonEditDialog, QuestionEditDialog
 
 class EditorWindow(gtk.Window):
 
@@ -110,8 +110,9 @@ class EditorWindow(gtk.Window):
 
 	toolbar = gtk.Toolbar()
 	toolbar.set_style(gtk.TOOLBAR_ICONS)
-	toolButton = gtk.ToolButton(gtk.STOCK_ADD)
-	toolbar.insert(toolButton, -1)
+	self.addQuestionButton = gtk.ToolButton(gtk.STOCK_ADD)
+	self.addQuestionButton.connect('clicked', self.addQuestion)
+	toolbar.insert(self.addQuestionButton, -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_EDIT)
 	toolbar.insert(toolButton, -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_REMOVE)
@@ -142,6 +143,7 @@ class EditorWindow(gtk.Window):
 	renderer.set_property('editable', True)
 	column.pack_start(renderer, True)
 	column.add_attribute(renderer, 'text', 1)
+	self.questionView.connect('key-press-event', self.questionKeyPressed)
 	scroller.add(self.questionView)
 
 	self.openFile(filename)
@@ -270,10 +272,11 @@ class EditorWindow(gtk.Window):
 	    lesson.setAttribute('title', title)
 	    self.doc.documentElement.appendChild(lesson)
 	    self.lessonStore.append((title, ))
+	    self.lessonView.grab_focus()
+	    self.lessonView.get_selection() \
+		    .select_path(str(len(self.lessonStore)-1))
 	    self.setChanged(True)
 	dialog.destroy()
-	self.lessonView.grab_focus()
-	self.lessonView.get_selection().select_path(str(len(self.lessonStore)-1))
 
     def editLesson(self, widget):
 	(model, iter) = self.lessonView.get_selection().get_selected()
@@ -339,6 +342,9 @@ class EditorWindow(gtk.Window):
     def lessonSelectionChanged(self, param1 = None, param2 = None):
 	(model, iter) = self.lessonView.get_selection().get_selected()
 	self.questionStore.clear()
+	self.editLessonButton.set_sensitive(False)
+	self.deleteLessonButton.set_sensitive(False)
+	self.addQuestionButton.set_sensitive(False)
 	if iter != None:
 	    lessons = xpath.Evaluate(
 		    '//lesson[%s + 1]' % (model.get_path(iter)),
@@ -358,12 +364,32 @@ class EditorWindow(gtk.Window):
 		    self.questionStore.append((question, u';'.join(answers)))
 		self.editLessonButton.set_sensitive(True)
 		self.deleteLessonButton.set_sensitive(True)
-	else:
-	    self.editLessonButton.set_sensitive(False)
-	    self.deleteLessonButton.set_sensitive(False)
+		self.addQuestionButton.set_sensitive(True)
 
     def lessonKeyPressed(self, widget, event):
 	if event.keyval == gtk.keysyms.Insert:
 	    self.newLesson(widget)
 	if event.keyval == gtk.keysyms.Delete:
 	    self.deleteLesson(widget)
+
+    def addQuestion(self, widget):
+	dialog = QuestionEditDialog(self)
+	result = dialog.run()
+	if result in (gtk.RESPONSE_OK, gtk.RESPONSE_ACCEPT):
+#	    title = dialog.getTitle()
+#	    lesson = self.doc.createElement('lesson')
+#	    lesson.setAttribute('title', title)
+#	    self.doc.documentElement.appendChild(lesson)
+#	    self.lessonStore.append((title, ))
+	    self.setChanged(True)
+	    self.questionView.grab_focus()
+	    self.questionView.get_selection().unselect_all()
+	    path = str(len(self.questionStore)-1)
+	    self.questionView.get_selection().select_path(path)
+	    self.questionView.set_cursor(path)
+	dialog.destroy()
+
+    def questionKeyPressed(self, widget, event):
+	if event.keyval == gtk.keysyms.Insert \
+		and self.addQuestionButton.get_property('sensitive'):
+	    self.addQuestion(widget)
