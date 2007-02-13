@@ -9,6 +9,8 @@ from xml import xpath
 from xml.dom.minidom import parse
 from xml.dom import getDOMImplementation
 
+from EditorDialogs import LessonEditDialog
+
 class EditorWindow(gtk.Window):
 
     def __init__(self, filename = None):
@@ -40,6 +42,9 @@ class EditorWindow(gtk.Window):
 	toolButton.connect('clicked', self.saveAs)
 	toolbar.insert(toolButton, -1)
 	toolbar.insert(gtk.SeparatorToolItem(), -1)
+	self.playButton = gtk.ToolButton(gtk.STOCK_MEDIA_PLAY)
+	toolbar.insert(self.playButton, -1)
+	toolbar.insert(gtk.SeparatorToolItem(), -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_CLOSE)
 	toolButton.connect('clicked', self.close)
 	toolbar.insert(toolButton, -1)
@@ -66,10 +71,18 @@ class EditorWindow(gtk.Window):
 	toolbar = gtk.Toolbar()
 	toolbar.set_style(gtk.TOOLBAR_ICONS)
 	toolButton = gtk.ToolButton(gtk.STOCK_NEW)
+	toolButton.connect('clicked', self.newLesson)
 	toolbar.insert(toolButton, -1)
-	toolButton = gtk.ToolButton(gtk.STOCK_EDIT)
+	self.editLessonButton = gtk.ToolButton(gtk.STOCK_EDIT)
+	self.editLessonButton.connect('clicked', self.editLesson)
+	toolbar.insert(self.editLessonButton, -1)
+	self.deleteLessonButton = gtk.ToolButton(gtk.STOCK_DELETE)
+	self.deleteLessonButton.connect('clicked', self.deleteLesson)
+	toolbar.insert(self.deleteLessonButton, -1)
+	toolbar.insert(gtk.SeparatorToolItem(), -1)
+	toolButton = gtk.ToolButton(gtk.STOCK_GO_UP)
 	toolbar.insert(toolButton, -1)
-	toolButton = gtk.ToolButton(gtk.STOCK_DELETE)
+	toolButton = gtk.ToolButton(gtk.STOCK_GO_DOWN)
 	toolbar.insert(toolButton, -1)
 	tbox.pack_start(toolbar, False)
 
@@ -87,6 +100,7 @@ class EditorWindow(gtk.Window):
 	renderer.connect('edited', self.lessonTitleEdited)
 	column.pack_start(renderer, True)
 	column.add_attribute(renderer, 'text', 0)
+	self.lessonView.connect('key-press-event', self.lessonKeyPressed)
 	self.lessonView.get_selection().connect('changed',
 	    self.lessonSelectionChanged)
 	scroller.add(self.lessonView)
@@ -96,11 +110,11 @@ class EditorWindow(gtk.Window):
 
 	toolbar = gtk.Toolbar()
 	toolbar.set_style(gtk.TOOLBAR_ICONS)
-	toolButton = gtk.ToolButton(gtk.STOCK_NEW)
+	toolButton = gtk.ToolButton(gtk.STOCK_ADD)
 	toolbar.insert(toolButton, -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_EDIT)
 	toolbar.insert(toolButton, -1)
-	toolButton = gtk.ToolButton(gtk.STOCK_DELETE)
+	toolButton = gtk.ToolButton(gtk.STOCK_REMOVE)
 	toolbar.insert(toolButton, -1)
 	tbox.pack_start(toolbar, False)
 
@@ -114,6 +128,7 @@ class EditorWindow(gtk.Window):
 	self.questionView.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
 	column = gtk.TreeViewColumn()
 	column.set_title(u'Вопрос')
+	column.set_resizable(True)
 	self.questionView.append_column(column)
 	renderer = gtk.CellRendererText()
 	renderer.set_property('editable', True)
@@ -121,6 +136,7 @@ class EditorWindow(gtk.Window):
 	column.add_attribute(renderer, 'text', 0)
 	column = gtk.TreeViewColumn()
 	column.set_title(u'Ответы')
+	column.set_resizable(True)
 	self.questionView.append_column(column)
 	renderer = gtk.CellRendererText()
 	renderer.set_property('editable', True)
@@ -154,14 +170,16 @@ class EditorWindow(gtk.Window):
 		    gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
 		)
 	)
+	dialog.set_default_response(gtk.RESPONSE_OK)
 	filter = gtk.FileFilter()
 	filter.set_name('Exam file')
 	filter.add_pattern('*.exam')
 	dialog.add_filter(filter)
 	result = dialog.run()
-	if result == gtk.RESPONSE_OK:
-	    self.openFile(dialog.get_filename())
+	filename = dialog.get_filename()
 	dialog.destroy()
+	if result == gtk.RESPONSE_OK:
+	    self.openFile(filename)
 
     def save(self, widget):
 	if self.filename == None:
@@ -178,6 +196,7 @@ class EditorWindow(gtk.Window):
 		    gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
 		)
 	)
+	dialog.set_default_response(gtk.RESPONSE_OK)
 	filter = gtk.FileFilter()
 	filter.set_name('Exam file')
 	filter.add_pattern('*.exam')
@@ -199,6 +218,19 @@ class EditorWindow(gtk.Window):
 	    gtk.main_quit()
 
     def openFile(self, filename):
+	if self.changed:
+	    dialog = gtk.MessageDialog(
+		self,
+		gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+		gtk.MESSAGE_WARNING,
+		gtk.BUTTONS_YES_NO,
+		u'Файл не сохранен. Сохранить?'
+	    )
+	    result = dialog.run()
+	    dialog.destroy()
+	    if result == gtk.RESPONSE_YES:
+		self.save(None)
+
 	self.lessonStore.clear()
 	self.filename = filename
 	if filename != None:
@@ -227,6 +259,64 @@ class EditorWindow(gtk.Window):
     def setChanged(self, value):
 	self.changed = value
 	self.saveButton.set_sensitive(self.changed)
+	self.playButton.set_sensitive(self.filename != None)
+
+    def newLesson(self, widget):
+	dialog = LessonEditDialog(self)
+	result = dialog.run()
+	if result == gtk.RESPONSE_OK:
+	    title = dialog.getTitle()
+	    lesson = self.doc.createElement('lesson')
+	    lesson.setAttribute('title', title)
+	    self.doc.documentElement.appendChild(lesson)
+	    self.lessonStore.append((title, ))
+	    self.setChanged(True)
+	dialog.destroy()
+	self.lessonView.grab_focus()
+	self.lessonView.get_selection().select_path(str(len(self.lessonStore)-1))
+
+    def editLesson(self, widget):
+	(model, iter) = self.lessonView.get_selection().get_selected()
+	if iter == None:
+	    return
+	dialog = LessonEditDialog(self, model.get_value(iter, 0))
+	result = dialog.run()
+	if result == gtk.RESPONSE_OK:
+	    title = dialog.getTitle()
+	    self.renameLesson(model, iter, title)
+	    self.setChanged(True)
+	dialog.destroy()
+	self.lessonView.grab_focus()
+	self.lessonView.get_selection().select_iter(iter)
+
+    def deleteLesson(self, widget):
+	(model, iter) = self.lessonView.get_selection().get_selected()
+	if iter == None:
+	    return
+	lessons = xpath.Evaluate(
+		'//lesson[%s + 1]' % (model.get_string_from_iter(iter)),
+		self.doc
+	)
+	if len(lessons) == 0:
+	    return
+	lesson = lessons[0]
+	tasks = xpath.Evaluate('.//task', lesson)
+	if len(tasks) > 0:
+	    dialog = gtk.MessageDialog(
+		self,
+		gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+		gtk.MESSAGE_WARNING,
+		gtk.BUTTONS_YES_NO,
+		u'Вы действительно хотите удалить урок со всем содержимым?'
+	    )
+	    result = dialog.run()
+	    dialog.destroy()
+	    if result != gtk.RESPONSE_YES:
+		return
+	lesson.parentNode.removeChild(lesson)
+	lesson.unlink()
+	model.remove(iter)
+	self.setChanged(True)
 
     def titleEntryChanged(self, widget):
 	exams = xpath.Evaluate('//exam', self.doc)
@@ -235,10 +325,15 @@ class EditorWindow(gtk.Window):
 	self.setChanged(True)
 
     def lessonTitleEdited(self, widget, path, new_text):
-	self.lessonStore[int(path)][0] = new_text
+	self.renameLesson(self.lessonStore, self.lessonStore.get_iter(path),
+		new_text)
+
+    def renameLesson(self, model, iter, newTitle):
+	path = model.get_string_from_iter(iter)
+	model[int(path)][0] = newTitle
 	lessons = xpath.Evaluate('//lesson[%s + 1]' % path, self.doc)
 	assert len(lessons) > 0
-	lessons[0].setAttribute('title', new_text)
+	lessons[0].setAttribute('title', newTitle)
 	self.setChanged(True)
 
     def lessonSelectionChanged(self, param1 = None, param2 = None):
@@ -249,17 +344,26 @@ class EditorWindow(gtk.Window):
 		    '//lesson[%s + 1]' % (model.get_path(iter)),
 		    self.doc
 	    )
-	    if len(lessons) == 0:
-		return
-	    else:
+	    if len(lessons) != 0:
 		lesson = lessons[0]
-	    tasks = xpath.Evaluate('./task', lesson)
-	    for task in tasks:
-		questions = xpath.Evaluate('./question/text()', task)
-		if len(questions) == 0:
-		    question = ''
-		else:
-		    question = questions[0].data
-		answers = [a.data for a
-				in xpath.Evaluate('./answer/text()', task)]
-		self.questionStore.append((question, u';'.join(answers)))
+		tasks = xpath.Evaluate('./task', lesson)
+		for task in tasks:
+		    questions = xpath.Evaluate('./question/text()', task)
+		    if len(questions) == 0:
+			question = ''
+		    else:
+			question = questions[0].data
+		    answers = [a.data for a
+				    in xpath.Evaluate('./answer/text()', task)]
+		    self.questionStore.append((question, u';'.join(answers)))
+		self.editLessonButton.set_sensitive(True)
+		self.deleteLessonButton.set_sensitive(True)
+	else:
+	    self.editLessonButton.set_sensitive(False)
+	    self.deleteLessonButton.set_sensitive(False)
+
+    def lessonKeyPressed(self, widget, event):
+	if event.keyval == gtk.keysyms.Insert:
+	    self.newLesson(widget)
+	if event.keyval == gtk.keysyms.Delete:
+	    self.deleteLesson(widget)
