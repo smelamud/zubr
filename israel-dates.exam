@@ -1,5 +1,4 @@
 <?xml version="1.0" ?>
-
 <exam title="Даты истории Израиля">
     <lesson title="Войны">
 	<task>
@@ -19,7 +18,7 @@
 	    <answer>1973</answer>
 	</task>
 	<task>
-	    <question>Ливанская война (операция "Мир Галилее")</question>
+	    <question>Ливанская война (операция &quot;Мир Галилее&quot;)</question>
 	    <answer>1982</answer>
 	</task>
     </lesson>

@@ -159,9 +159,9 @@ class EditorWindow(gtk.Window):
 
     def setExamTitle(self, title):
 	if not title:
-	    self.set_title(u'Зубрёжка (редактор)')
+	    self.set_title(u'Зубр (редактор)')
 	else:
-	    self.set_title(u'Зубрёжка (редактор) - ' + title)
+	    self.set_title(u'Зубр (редактор) - ' + title)
 
     def run(self):
 	self.running = True

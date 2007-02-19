@@ -36,9 +36,9 @@ class AppWindow(gtk.Window):
 
     def setExamTitle(self, title):
 	if not title:
-	    self.set_title(u'Зубрёжка')
+	    self.set_title(u'Зубр')
 	else:
-	    self.set_title(u'Зубрёжка - ' + title)
+	    self.set_title(u'Зубр - ' + title)
 
     def switchScreen(self, name):
 	if self.currentScreen:
