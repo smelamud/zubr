@@ -96,10 +96,10 @@ class ExamScreen(Screen):
 
     def showResult(self, result):
 	if result == self.RIGHT:
-	    text = self.currentQuestion.answers[0]
+	    text = '; '.join(self.currentQuestion.answers)
 	    color = self._RIGHT_COLOR
 	elif result == self.WRONG:
-	    text = self.currentQuestion.answers[0]
+	    text = '; '.join(self.currentQuestion.answers)
 	    color = self._WRONG_COLOR
 	else:
 	    text = u''

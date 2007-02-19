@@ -89,5 +89,11 @@ class QuestionEditDialog(gtk.Dialog):
 
 	table.show_all()
 
-    def getTitle(self):
-	return self.entry.get_text()
+    def getQuestion(self):
+	return self.questionEntry.get_text()
+
+    def getAnswer(self):
+	return self.answersEntry.get_text()
+
+    def getAnswers(self):
+	return [a.strip() for a in self.getAnswer().split(';')]
