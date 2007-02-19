@@ -13,8 +13,9 @@ from Examiner import Examiner
 
 class AppWindow(gtk.Window):
 
-    def __init__(self):
+    def __init__(self, filename = None):
 	gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+	self.running = False
 
 	self.setExamTitle('')
 	self.set_position(gtk.WIN_POS_CENTER)
@@ -32,6 +33,8 @@ class AppWindow(gtk.Window):
 	    'pause': PauseScreen(self),
 	    'finish': FinishScreen(self),
 	}
+	if filename != None:
+	    self.screens['start'].file.set_filename(filename)
 	self.currentScreen = None
 
     def setExamTitle(self, title):
@@ -47,9 +50,12 @@ class AppWindow(gtk.Window):
 	self.currentScreen.show()
 
     def run(self):
+	self.running = True
 	self.switchScreen('start')
 	self.show()
 	gtk.main()
 
     def destroy(self, widget, data = None):
-	gtk.main_quit()
+	gtk.Window.destroy(self)
+	if self.running:
+	    gtk.main_quit()

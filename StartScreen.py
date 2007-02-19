@@ -10,7 +10,7 @@ from xml.dom.minidom import parse
 from xml import xpath
 
 from Screen import Screen
-from EditorWindow import EditorWindow
+import EditorWindow
 
 class StartScreen(Screen):
 
@@ -113,7 +113,7 @@ class StartScreen(Screen):
 	self.window.switchScreen('exam')
 
     def edit(self, widget):
-	editor = EditorWindow(self.file.get_filename())
+	editor = EditorWindow.EditorWindow(self.file.get_filename())
 	editor.show()
 
     def fileChanged(self, filechooser = None):

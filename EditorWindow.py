@@ -11,6 +11,7 @@ from xml.dom import getDOMImplementation
 import xml.parsers.expat
 
 from EditorDialogs import LessonEditDialog, QuestionEditDialog
+import AppWindow
 
 class EditorWindow(gtk.Window):
 
@@ -44,6 +45,7 @@ class EditorWindow(gtk.Window):
 	toolbar.insert(toolButton, -1)
 	toolbar.insert(gtk.SeparatorToolItem(), -1)
 	self.playButton = gtk.ToolButton(gtk.STOCK_MEDIA_PLAY)
+	self.playButton.connect('clicked', self.play)
 	toolbar.insert(self.playButton, -1)
 	toolbar.insert(gtk.SeparatorToolItem(), -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_CLOSE)
@@ -225,6 +227,11 @@ class EditorWindow(gtk.Window):
 	self.destroy()
 	if self.running:
 	    gtk.main_quit()
+
+    def play(self, widget):
+	window = AppWindow.AppWindow(self.filename)
+	window.switchScreen('start')
+	window.show()
 
     def openFile(self, filename):
 	if self.changed:
