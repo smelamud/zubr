@@ -4,6 +4,7 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
+import pango
 
 class LessonEditDialog(gtk.Dialog):
 
@@ -52,7 +53,7 @@ class QuestionEditDialog(gtk.Dialog):
 		gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
 	    )
 	)
-	self.set_default_response(gtk.RESPONSE_ACCEPT)
+	self.setContinuable(True)
 
 	table = gtk.Table(3, 2)
 	table.set_border_width(10)
@@ -67,7 +68,6 @@ class QuestionEditDialog(gtk.Dialog):
 
 	self.questionEntry = gtk.Entry()
 	self.questionEntry.set_width_chars(50)
-	self.questionEntry.set_text(question)
 	self.questionEntry.set_activates_default(True)
 	table.attach(self.questionEntry, 1, 2, 0, 1)
 
@@ -78,14 +78,16 @@ class QuestionEditDialog(gtk.Dialog):
 
 	self.answersEntry = gtk.Entry()
 	self.answersEntry.set_width_chars(50)
-	self.answersEntry.set_text(answers)
 	self.answersEntry.set_activates_default(True)
 	table.attach(self.answersEntry, 1, 2, 1, 2)
 
 	label = gtk.Label(u'Если допускается несколько вариантов ответа, перечислите их через точку с запятой (;)')
+	label.modify_font(pango.FontDescription('8'))
 	alignment = gtk.Alignment(yalign = 0.5)
 	alignment.add(label)
 	table.attach(alignment, 1, 2, 2, 3)
+
+	self.setTask(question, answers)
 
 	table.show_all()
 
@@ -97,3 +99,19 @@ class QuestionEditDialog(gtk.Dialog):
 
     def getAnswers(self):
 	return [a.strip() for a in self.getAnswer().split(';')]
+
+    def setTask(self, question, answers):
+	self.questionEntry.set_text(question)
+	self.answersEntry.set_text(answers)
+	self.questionEntry.grab_focus()
+
+    def clearTask(self):
+	self.setTask('', '')
+
+    def setContinuable(self, continuable):
+	if continuable:
+	    self.set_response_sensitive(gtk.RESPONSE_ACCEPT, True)
+	    self.set_default_response(gtk.RESPONSE_ACCEPT)
+	else:
+	    self.set_default_response(gtk.RESPONSE_OK)
+	    self.set_response_sensitive(gtk.RESPONSE_ACCEPT, False)

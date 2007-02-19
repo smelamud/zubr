@@ -409,17 +409,23 @@ class EditorWindow(gtk.Window):
     def addQuestion(self, widget):
 	(model, iter, lesson) = self.getSelectedLesson()
 	dialog = QuestionEditDialog(self)
-	result = dialog.run()
-	if result in (gtk.RESPONSE_OK, gtk.RESPONSE_ACCEPT):
-	    task = self._createTask(dialog.getQuestion(), dialog.getAnswers())
-	    lesson.appendChild(task)
-	    self.questionStore.append((dialog.getQuestion(), dialog.getAnswer()))
-	    self.setChanged(True)
-	    self.questionView.grab_focus()
-	    self.questionView.get_selection().unselect_all()
-	    path = str(len(self.questionStore) - 1)
-	    self.questionView.get_selection().select_path(path)
-	    self.questionView.set_cursor(path)
+	while True:
+	    dialog.clearTask()
+	    result = dialog.run()
+	    if result in (gtk.RESPONSE_OK, gtk.RESPONSE_ACCEPT):
+		task = self._createTask(dialog.getQuestion(),
+			dialog.getAnswers())
+		lesson.appendChild(task)
+		self.questionStore.append((dialog.getQuestion(),
+			dialog.getAnswer()))
+		self.setChanged(True)
+		self.questionView.grab_focus()
+		self.questionView.get_selection().unselect_all()
+		path = str(len(self.questionStore) - 1)
+		self.questionView.get_selection().select_path(path)
+		self.questionView.set_cursor(path)
+	    if result != gtk.RESPONSE_ACCEPT:
+		break
 	dialog.destroy()
 
     def getSelectedQuestions(self):
@@ -445,16 +451,20 @@ class EditorWindow(gtk.Window):
 	if len(questions) <= 0:
 	    return
 	assert len(iters) == len(questions)
-	iter = iters[0]
-	dialog = QuestionEditDialog(self, model.get_value(iter, 0),
-		model.get_value(iter, 1))
-	result = dialog.run()
-	if result == gtk.RESPONSE_OK:
-	    self.modifyQuestion(dialog.getQuestion(), dialog.getAnswer(),
-		    dialog.getAnswers())
+	dialog = QuestionEditDialog(self)
+	for i in range(0, len(questions)):
+	    iter = iters[i]
+	    dialog.setTask(model.get_value(iter, 0), model.get_value(iter, 1))
+	    dialog.setContinuable(i < len(questions) - 1)
+	    result = dialog.run()
+	    if result in (gtk.RESPONSE_OK, gtk.RESPONSE_ACCEPT):
+		self.modifyQuestion(dialog.getQuestion(), dialog.getAnswer(),
+			dialog.getAnswers(), i)
+	    self.questionView.grab_focus()
+	    self.questionView.get_selection().select_iter(iter)
+	    if result != gtk.RESPONSE_ACCEPT:
+		break
 	dialog.destroy()
-	self.questionView.grab_focus()
-	self.questionView.get_selection().select_iter(iter)
 
     def deleteQuestion(self, widget):
 	(model, iters, questions) = self.getSelectedQuestions()
