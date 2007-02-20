@@ -30,26 +30,50 @@ class EditorWindow(gtk.Window):
 	container = gtk.VBox(False, 5)
 	self.add(container)
 
+	accelGroup = gtk.AccelGroup()
+	self.add_accel_group(accelGroup)
+	self.tooltips = gtk.Tooltips()
+
 	toolbar = gtk.Toolbar()
 	toolButton = gtk.ToolButton(gtk.STOCK_NEW)
 	toolButton.connect('clicked', self.new)
+	toolButton.set_tooltip(self.tooltips, u'Создать новый файл (Ctrl+N)')
+	toolButton.add_accelerator('clicked', accelGroup, ord('n'),
+		gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE | gtk.ACCEL_LOCKED)
 	toolbar.insert(toolButton, -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_OPEN)
 	toolButton.connect('clicked', self.open)
+	toolButton.set_tooltip(self.tooltips, u'Открыть файл (Ctrl+O)')
+	toolButton.add_accelerator('clicked', accelGroup, ord('o'),
+		gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE | gtk.ACCEL_LOCKED)
 	toolbar.insert(toolButton, -1)
 	self.saveButton = gtk.ToolButton(gtk.STOCK_SAVE);
+	self.saveButton.set_tooltip(self.tooltips,
+		u'Сохранить текущий файл (Ctrl+S)')
+	self.saveButton.add_accelerator('clicked', accelGroup, ord('s'),
+		gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE | gtk.ACCEL_LOCKED)
 	self.saveButton.connect('clicked', self.save)
 	toolbar.insert(self.saveButton, -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_SAVE_AS)
+	toolButton.set_tooltip(self.tooltips,
+		u'Сохранить текущий файл как... (Shift+Ctrl+S)')
+	toolButton.add_accelerator('clicked', accelGroup, ord('s'),
+		gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK,
+		gtk.ACCEL_VISIBLE | gtk.ACCEL_LOCKED)
 	toolButton.connect('clicked', self.saveAs)
 	toolbar.insert(toolButton, -1)
 	toolbar.insert(gtk.SeparatorToolItem(), -1)
 	self.playButton = gtk.ToolButton(gtk.STOCK_MEDIA_PLAY)
 	self.playButton.connect('clicked', self.play)
+	self.playButton.set_tooltip(self.tooltips,
+		u'Запустить тренировку (Ctrl+G)')
+	self.playButton.add_accelerator('clicked', accelGroup, ord('g'),
+		gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE | gtk.ACCEL_LOCKED)
 	toolbar.insert(self.playButton, -1)
 	toolbar.insert(gtk.SeparatorToolItem(), -1)
 	toolButton = gtk.ToolButton(gtk.STOCK_CLOSE)
 	toolButton.connect('clicked', self.close)
+	toolButton.set_tooltip(self.tooltips, u'Закрыть редактор')
 	toolbar.insert(toolButton, -1)
 	container.pack_start(toolbar, False)
 
