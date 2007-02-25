@@ -111,14 +111,16 @@ class EditorWindow(gtk.Window):
 	self.deleteLessonButton.connect('clicked', self.deleteLesson)
 	toolbar.insert(self.deleteLessonButton, -1)
 	toolbar.insert(gtk.SeparatorToolItem(), -1)
-	toolButton = gtk.ToolButton(gtk.STOCK_GO_UP)
-	toolButton.set_tooltip(self.tooltips,
+	self.upLessonButton = gtk.ToolButton(gtk.STOCK_GO_UP)
+	self.upLessonButton.set_tooltip(self.tooltips,
 		u'Передвинуть урок вверх по списку')
-	toolbar.insert(toolButton, -1)
-	toolButton = gtk.ToolButton(gtk.STOCK_GO_DOWN)
-	toolButton.set_tooltip(self.tooltips,
+	self.upLessonButton.connect('clicked', self.moveLessonUp)
+	toolbar.insert(self.upLessonButton, -1)
+	self.downLessonButton = gtk.ToolButton(gtk.STOCK_GO_DOWN)
+	self.downLessonButton.set_tooltip(self.tooltips,
 		u'Передвинуть урок вниз по списку')
-	toolbar.insert(toolButton, -1)
+	self.downLessonButton.connect('clicked', self.moveLessonDown)
+	toolbar.insert(self.downLessonButton, -1)
 	tbox.pack_start(toolbar, False)
 
 	scroller = gtk.ScrolledWindow()
@@ -393,6 +395,33 @@ class EditorWindow(gtk.Window):
 	model.remove(iter)
 	self.setChanged(True)
 
+    def moveLessonUp(self, widget):
+	(model, iter, lesson) = self.getSelectedLesson()
+	if lesson == None:
+	    return
+	prev = lesson.previousSibling
+	if prev == None:
+	    return
+	lesson.parentNode.removeChild(lesson)
+	prev.parentNode.insertBefore(lesson, prev)
+	pos = int(model.get_string_from_iter(iter)) - 1
+	model.move_before(iter, model.get_iter_from_string(str(pos)))
+	self.lessonSelectionChanged()
+	self.setChanged(True)
+
+    def moveLessonDown(self, widget):
+	(model, iter, lesson) = self.getSelectedLesson()
+	if lesson == None:
+	    return
+	next = lesson.nextSibling
+	if next == None:
+	    return
+	lesson.parentNode.removeChild(lesson)
+	next.parentNode.insertBefore(lesson, next.nextSibling)
+	model.move_after(iter, model.iter_next(iter))
+	self.lessonSelectionChanged()
+	self.setChanged(True)
+
     def titleEntryChanged(self, widget):
 	exams = xpath.Evaluate('//exam', self.doc)
 	assert len(exams) > 0
@@ -426,10 +455,14 @@ class EditorWindow(gtk.Window):
 		self.questionStore.append((question, u';'.join(answers)))
 	    self.editLessonButton.set_sensitive(True)
 	    self.deleteLessonButton.set_sensitive(True)
+	    self.upLessonButton.set_sensitive(lesson.previousSibling != None)
+	    self.downLessonButton.set_sensitive(lesson.nextSibling != None)
 	    self.addQuestionButton.set_sensitive(True)
 	else:
 	    self.editLessonButton.set_sensitive(False)
 	    self.deleteLessonButton.set_sensitive(False)
+	    self.upLessonButton.set_sensitive(False)
+	    self.downLessonButton.set_sensitive(False)
 	    self.addQuestionButton.set_sensitive(False)
 	self.questionSelectionChanged()
 
